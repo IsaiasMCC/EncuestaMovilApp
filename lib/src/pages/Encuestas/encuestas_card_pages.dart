@@ -40,7 +40,7 @@ class _EncuestaPageState extends State<EncuestaPage> {
 
   Widget _encuestas(List<Encuesta> encuestas) {
     return ListView.builder(
-      padding: const  EdgeInsets.symmetric(vertical: 50, horizontal: 15),
+      padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 15),
       itemCount: encuestas.length,
       itemBuilder: (BuildContext context, index) {
         final encuesta = encuestas[index];
@@ -49,7 +49,6 @@ class _EncuestaPageState extends State<EncuestaPage> {
     );
   }
 
-
   Widget _card(BuildContext context, Encuesta encuesta) {
     return Center(
       child: Card(
@@ -57,7 +56,7 @@ class _EncuestaPageState extends State<EncuestaPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.analytics, color: Colors.orange),
+              leading: const Icon(Icons.analytics, color: Colors.orange),
               title: Text('${encuesta.name}'),
               subtitle: Text('${encuesta.description}'),
             ),
@@ -68,16 +67,34 @@ class _EncuestaPageState extends State<EncuestaPage> {
                   child: Text('ver encuesta',
                       style: TextStyle(color: color_fuente)),
                   onPressed: () {
-                    Navigator.pushNamed(context, 'verencuestas', arguments: encuesta);
+                    Navigator.pushNamed(context, 'verencuestas',
+                        arguments: encuesta);
                   },
                 ),
                 TextButton(
                   child: Text('aplicar', style: TextStyle(color: color_fuente)),
                   onPressed: () {
-                    Navigator.pushNamed(context, 'aplicarencuestas', arguments:  encuesta);
+                    Navigator.pushNamed(context, 'aplicarencuestas',
+                        arguments: encuesta);
                   },
                 ),
                 SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(
+                    Icons.download,
+                    color: Colors.green,
+                  ),
+                  tooltip: 'Actualizar encuestas',
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.refresh,
+                    color: Colors.blue,
+                  ),
+                  tooltip: 'Actualizar encuestas',
+                  onPressed: () {},
+                ),
               ],
             ),
           ],
