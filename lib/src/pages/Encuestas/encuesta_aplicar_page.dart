@@ -3,6 +3,7 @@ import 'package:encuestas/src/provider/encuesta_provider.dart';
 import 'package:encuestas/src/models/encuesta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:encuestas/src/pages/Encuestas/alerta.dart';
+import 'package:encuestas/src/models/almacenar_preguntas_model.dart';
 
 class EncuestaAplicar extends StatefulWidget {
   const EncuestaAplicar({Key? key}) : super(key: key);
@@ -14,10 +15,13 @@ class EncuestaAplicar extends StatefulWidget {
 class _EncuestaAplicarState extends State<EncuestaAplicar> {
   bool? _check = false;
   String? id = '';
+  PreguntasM listState = PreguntasM();
+
   var color_fuente = new Color.fromRGBO(52, 73, 94, 1);
   @override
   Widget build(BuildContext context) {
     final encuesta = ModalRoute.of(context)?.settings.arguments as Encuesta;
+    listState.idEncuesta = encuesta.id;
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -30,7 +34,7 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
           ),
         ),
         body: FutureBuilder(
-          future: getEncuesta('${encuesta.id}'),
+          future: getEncuestaLocal('${encuesta.id}'),
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               return encuestaAplicar(snapshot.data);
@@ -60,6 +64,7 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
         itemCount: seccion.questions.length,
         itemBuilder: (context, index) {
           final pregunta = seccion.questions[index];
+
           return Column(
             children: [
               _nombreSeccion(nro, length, index),
@@ -88,10 +93,23 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
       Text('¿ ${question.name} ?'),
       const SizedBox(height: 30),
     ];
+
+    PreguntaM resp = PreguntaM(question.id, question.multiple);
+    listState.encuesta.add(resp);
     final listaOptions = question.optionRespuesta;
     final multiple = question.multiple;
+    if (!multiple) {
+      RespuestaM respuesta = RespuestaM();
+      respuesta.idOpcionRespuesta = '';
+      resp.respuestas.add(respuesta);
+    }
     for (var option in listaOptions) {
-      lista.add(optionRespuesta(option, multiple, listaOptions));
+      if (multiple) {
+        RespuestaM respuesta = RespuestaM();
+        respuesta.idOpcionRespuesta = option.id;
+        resp.respuestas.add(respuesta);
+      }
+      lista.add(optionRespuesta(option, multiple, resp.respuestas.last));
       lista.add(const SizedBox(height: 20));
     }
 
@@ -99,15 +117,15 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
     return lista;
   }
 
-  Widget optionRespuesta(OptionRespuesta opcion, bool multiple,
-      List<OptionRespuesta> listaOptions) {
+  Widget optionRespuesta(
+      OptionRespuesta opcion, bool multiple, RespuestaM respuesta) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const SizedBox(
           width: 20,
         ),
-        opcionSeleccion(opcion, multiple),
+        opcionSeleccion(opcion, multiple, respuesta),
         const SizedBox(
           width: 60,
         ),
@@ -116,23 +134,24 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
     );
   }
 
-  Widget opcionSeleccion(OptionRespuesta opcion, bool multiple) {
+  Widget opcionSeleccion(
+      OptionRespuesta opcion, bool multiple, RespuestaM respuesta) {
     if (multiple) {
       return Checkbox(
-        value: _check,
+        value: respuesta.estado,
         onChanged: (valor) {
           setState(() {
-            _check = valor;
+            respuesta.estado = valor;
           });
         },
       );
     } else {
       return Radio(
           value: opcion.id,
-          groupValue: id,
+          groupValue: respuesta.idOpcionRespuesta,
           onChanged: (String? valor) {
             setState(() {
-              id = valor;
+              respuesta.idOpcionRespuesta = valor;
             });
           });
     }

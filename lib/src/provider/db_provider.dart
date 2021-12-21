@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -30,93 +31,102 @@ class DBProvider {
         onCreate: (Database db, int version) async {
       //sii la bd ya existe devuelve la intancia de la bd creada
       await db.execute('CREATE TABLE Encuestas ('
-          ' id STRING PRIMARY KEY,'
-          ' encuesta TEXT,'
-          ' estado TEXT'
+          ' id TEXT PRIMARY KEY,'
+          ' encuesta TEXT'
           ')');
     });
   }
 
   // crear registros
-  nuevaEncuestaRaw(int id, String json) async {
+  nuevaEncuestaRaw(String? id, String encuesta) async {
     final db = await database; // esperar hast que la base de dato este lista
 
-    final res = await db?.rawInsert(
-        "INSERT Into Encuestas (id, encuesta, tipo) "
-        "VALUE ( ${id}, '${json}', '${''}' )");
+    final res = await db?.rawInsert("INSERT Into Encuestas (id, encuesta) "
+        "VALUES ( '$id', '$encuesta')");
     // if(res == 1){ print('___Insercion correcta___'+res.toString());}
     return res;
   }
 
-  nuevaEncuesta(EncuestaModelQlite nuevoEncuesta) async {
+  updateEncuestasLocal(String? id, String encuesta) async {
     final db = await database;
-    final res = db?.insert('Encuestas', nuevoEncuesta.toJson());
-    // print('res'+res.toString());
-    // if(res == 0){ print('___Insercion fallida___'+res.toString());}
-    return res;
+    final res = db?.rawQuery(
+        "UPDATE Encuestas set encuesta = ? WHERE id = ?", [encuesta, id]);
+
+    return res; // devuelve la cantidad de atualizaciones que se hizo
   }
 
 //select
-  Future<EncuestaModelQlite?> getEncuestasId(int id) async {
+  getEncuestasId(String id) async {
     final db = await database;
     final res = await db?.query('Encuestas',
         where: 'id = ?', whereArgs: [id]); //devuelve un mapa
 
-    return res!.isEmpty ? EncuestaModelQlite.fromJson(res.first) : null;
+    return res!.isNotEmpty ? res.first : null;
+  }
+
+  Future<bool> getEncuestasStateId(String? id) async {
+    final db = await database;
+    final res = await db?.query('Encuestas',
+        where: 'id = ?', whereArgs: [id]); //devuelve un mapa
+// EncuestaModelQlite.fromJson(res.first)
+    return res!.isNotEmpty ? true : false;
   }
 
 //lista todas las encuestas en una lista
-Future<List<EncuestaModelQlite>> getTodoEncuestas( ) async {
-  final db = await database;
-  final res = await db?.query('Encuestas', ); //devuelve  un listado de mapas
-  //necesito hacer un listdado de encuestas
-  List<EncuestaModelQlite> list = res!.isNotEmpty
-                                  ? res.map((e) => EncuestaModelQlite.fromJson(e)).toList()
-                                  : [] ;
-  
-return list;
-}
+  getTodoEncuestas() async {
+    final db = await database;
+    final res = await db?.query(
+      'Encuestas',
+    ); //devuelve  un listado de mapas
+    //necesito hacer un listdado de encuestas
+    // List<EncuestaModelQlite> list = res!.isNotEmpty
+    //     ? res.map((e) => EncuestaModelQlite.fromJson(e)).toList()
+    //     : [];
 
+    return res!;
+  }
 
 //listado por estado
-Future<List<EncuestaModelQlite>> getEncuestasPorTipo( String  estado ) async {
-  final db = await database;
-  final res = await db?.rawQuery("SELECT * FROM Encuestas WHERE  estado='$estado'"); //devuelve  un listado de mapas
-  //necesito hacer un listdado de encuestas
-  List<EncuestaModelQlite> list = res!.isNotEmpty
-                                  ? res.map((e) => EncuestaModelQlite.fromJson(e)).toList()
-                                  : [] ;
-  
-return list;
-}
+  Future<List<EncuestaModelQlite>> getEncuestasPorTipo(String estado) async {
+    final db = await database;
+    final res = await db?.rawQuery(
+        "SELECT * FROM Encuestas WHERE  estado='$estado'"); //devuelve  un listado de mapas
+    //necesito hacer un listdado de encuestas
+    List<EncuestaModelQlite> list = res!.isNotEmpty
+        ? res.map((e) => EncuestaModelQlite.fromJson(e)).toList()
+        : [];
 
-//___ Update 
+    return list;
+  }
+
+//___ Update
 // devuelve la cantidad de updat que se realizaron
 //  1 si hizo actualizacion, 0 si no lo hizo
-Future<int?> updateEncuestas ( EncuestaModelQlite nuevaEncuesta ) async {
-  final db = await database;
-  final res = db?.update('Encuestas',  nuevaEncuesta.toJson(), where:  'id = ?', whereArgs:[nuevaEncuesta.id] );
+  Future<int?> updateEncuestas(EncuestaModelQlite nuevaEncuesta) async {
+    final db = await database;
+    final res = db?.update('Encuestas', nuevaEncuesta.toJson(),
+        where: 'id = ?', whereArgs: [nuevaEncuesta.id]);
 
-  return res;// devuelve la cantidad de atualizaciones que se hizo
-
-}
+    return res; // devuelve la cantidad de atualizaciones que se hizo
+  }
 
 //devuelve  la cantidad de registros eliminados
-Future<int?> deleteEncuestas(int id ) async {
-  final db = await database;
-  /// res devuelve la cantidad de reg eliminados
-  /// si no ponemos  where id    borraria todo los registros pero seguiria la estructura ahi
-  /// drop   borra todo todo
-  final res = await db?.delete('Encuestas', where: 'id= ?', whereArgs: [id]);
-  
-return res;
-}
-Future<int?> deleteEncuestasALL(int id ) async {
-  final db = await database;
-  
-  final res = await db?.rawDelete('DELETE FROM Encuestas');
-  
-return res;
-}
+  Future<int?> deleteEncuestas(int id) async {
+    final db = await database;
 
+    /// res devuelve la cantidad de reg eliminados
+    /// si no ponemos  where id    borraria todo los registros pero seguiria la estructura ahi
+    /// drop   borra todo todo
+    final res = await db?.delete('Encuestas', where: 'id= ?', whereArgs: [id]);
+
+    return res;
+  }
+
+  Future<int?> deleteEncuestasALL(int id) async {
+    final db = await database;
+
+    final res = await db?.rawDelete('DELETE FROM Encuestas');
+
+    return res;
+  }
 }

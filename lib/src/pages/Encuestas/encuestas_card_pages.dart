@@ -1,3 +1,5 @@
+import 'package:encuestas/src/provider/db_provider.dart';
+import 'package:encuestas/src/provider/encuesta_provider.dart';
 import 'package:encuestas/src/provider/encuestas_provider.dart';
 import 'package:encuestas/src/models/encuestas_model.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +21,9 @@ class _EncuestaPageState extends State<EncuestaPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Actualizar encuestas',
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, 'encuestas');
+            },
           ),
         ],
       ),
@@ -84,16 +88,20 @@ class _EncuestaPageState extends State<EncuestaPage> {
                     Icons.download,
                     color: Colors.green,
                   ),
-                  tooltip: 'Actualizar encuestas',
-                  onPressed: () {},
+                  tooltip: 'Encuesta Descargada',
+                  onPressed: () {
+                    descargarEncuesta(encuesta.id);
+                  },
                 ),
                 IconButton(
                   icon: const Icon(
                     Icons.refresh,
                     color: Colors.blue,
                   ),
-                  tooltip: 'Actualizar encuestas',
-                  onPressed: () {},
+                  tooltip: 'Encuesta Actualizada',
+                  onPressed: () {
+                    actualizarEncuesta(encuesta.id);
+                  },
                 ),
               ],
             ),

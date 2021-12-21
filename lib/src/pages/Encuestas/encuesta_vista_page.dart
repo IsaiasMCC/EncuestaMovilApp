@@ -24,7 +24,7 @@ class _EncuestaVistaState extends State<EncuestaVista> {
         title: const Text('Encuesta'),
       ),
       body: FutureBuilder(
-        future: getEncuesta('${encuesta.id}'),
+        future: getEncuestaLocal('${encuesta.id}'),
         builder: (context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return _encuesta(snapshot.data);

@@ -26,7 +26,7 @@ class Seccions {
 }
 
 class Section {
-   Section({
+  Section({
     required this.name,
     required this.questions,
     required this.state,
@@ -52,18 +52,20 @@ class Section {
 
 class Question {
   Question({
+    this.id = '',
     this.name = '',
     required this.tipoPregunta,
     required this.optionRespuesta,
     required this.multiple,
   });
-
+  String id;
   String name;
   TipoPregunta tipoPregunta;
   List<OptionRespuesta> optionRespuesta;
   bool multiple;
 
   factory Question.fromJson(Map<String, dynamic> json) => Question(
+        id: json["_id"],
         name: json["name"],
         tipoPregunta: TipoPregunta.fromJson(json["tipoPregunta"]),
         optionRespuesta: List<OptionRespuesta>.from(
@@ -72,6 +74,7 @@ class Question {
       );
 
   Map<String, dynamic> toJson() => {
+        "_id": id,
         "name": name,
         "tipoPregunta": tipoPregunta.toJson(),
         "optionRespuesta":
