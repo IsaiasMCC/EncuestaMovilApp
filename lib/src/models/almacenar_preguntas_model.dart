@@ -1,27 +1,35 @@
-// class PreguntaM {
-//   String idPregunta = '';
-//   Map respuestas = {'id_opcionRespuesta': '', 'id_opcionRespuestas': []};
-// }
-
-
+class SeccionsM {
+  String? id;
+  List<PreguntasM>? secciones;
+  SeccionsM() {
+    secciones = [];
+    id = '';
+  }
+}
 
 class PreguntasM {
-  String? idEncuesta = '';
-  List<PreguntaM> encuesta = [];
+  List<PreguntaM>? preguntas;
+  PreguntasM() {
+    preguntas = [];
+  }
 }
 
 class PreguntaM {
-  String idPregunta = '';
-  bool multiple = false;
-  List<RespuestaM> respuestas = [];
-
-  PreguntaM(String id, bool tipo) {
-    idPregunta = id;
-    multiple = tipo;
+  String? id;
+  List<RespuestaM>? respuestas;
+  PreguntaM(idd) {
+    id = idd;
+    respuestas = [];
   }
 }
 
 class RespuestaM {
-  String? idOpcionRespuesta = '';
-  bool? estado = false;
+  String? idOpcionRespuesta;
+  bool? state;
+  int? select;
+  RespuestaM() {
+    idOpcionRespuesta = '';
+    state = false;
+    select = -1;
+  }
 }

@@ -57,12 +57,14 @@ class Question {
     required this.tipoPregunta,
     required this.optionRespuesta,
     required this.multiple,
+    required this.radio,
   });
   String id;
   String name;
   TipoPregunta tipoPregunta;
   List<OptionRespuesta> optionRespuesta;
   bool multiple;
+  String radio;
 
   factory Question.fromJson(Map<String, dynamic> json) => Question(
         id: json["_id"],
@@ -71,6 +73,7 @@ class Question {
         optionRespuesta: List<OptionRespuesta>.from(
             json["optionRespuesta"].map((x) => OptionRespuesta.fromJson(x))),
         multiple: json["multiple"],
+        radio: '',
       );
 
   Map<String, dynamic> toJson() => {
@@ -87,15 +90,18 @@ class OptionRespuesta {
   OptionRespuesta({
     required this.id,
     required this.value,
+    required this.estado,
   });
 
   String id;
   String value;
+  bool? estado;
 
   factory OptionRespuesta.fromJson(Map<String, dynamic> json) =>
       OptionRespuesta(
         id: json["_id"],
         value: json["value"],
+        estado: false,
       );
 
   Map<String, dynamic> toJson() => {

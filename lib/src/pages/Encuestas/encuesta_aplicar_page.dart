@@ -13,15 +13,14 @@ class EncuestaAplicar extends StatefulWidget {
 }
 
 class _EncuestaAplicarState extends State<EncuestaAplicar> {
-  bool? _check = false;
   String? id = '';
-  PreguntasM listState = PreguntasM();
-
+  SeccionsM listaState = SeccionsM();
   var color_fuente = new Color.fromRGBO(52, 73, 94, 1);
+
   @override
   Widget build(BuildContext context) {
     final encuesta = ModalRoute.of(context)?.settings.arguments as Encuesta;
-    listState.idEncuesta = encuesta.id;
+    listaState.id = encuesta.id;
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -50,66 +49,82 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
   }
 
   Widget encuestaAplicar(Seccions seccions) {
+    for (var i = 0; i < seccions.sections.length; i++) {
+      PreguntasM pregs = PreguntasM();
+      listaState.secciones!.add(pregs);
+      var prs = seccions.sections[i].questions;
+
+      for (var j = 0; j < prs.length; j++) {
+        PreguntaM preg = PreguntaM('');
+        pregs.preguntas!.add(preg);
+        var pr = prs[j].optionRespuesta;
+
+        if (!prs[j].multiple) {
+          var resp = RespuestaM();
+          preg.respuestas!.add(resp);
+        }
+        for (var k = 0; k < pr.length; k++) {
+          if (prs[j].multiple) {
+            var resp = RespuestaM();
+            preg.respuestas!.add(resp);
+            resp.idOpcionRespuesta = '';
+          }
+        }
+      }
+    }
     return PageView.builder(
         itemCount: seccions.sections.length,
         itemBuilder: (context, index) {
           final seccion = seccions.sections[index];
-          return _seccion(seccion, index, seccions.sections.length);
+          PreguntasM pregs = PreguntasM();
+          listaState.secciones!.add(pregs);
+          return _seccion(seccion, index, seccions.sections.length, pregs);
         });
   }
 
-  Widget _seccion(Section seccion, int nro, int length) {
+  Widget _seccion(Section seccion, int nro, int length, PreguntasM pregs) {
     return ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         itemCount: seccion.questions.length,
         itemBuilder: (context, index) {
           final pregunta = seccion.questions[index];
-
           return Column(
             children: [
               _nombreSeccion(nro, length, index),
-              cardPregunta(context, pregunta),
+              cardPregunta(context, pregunta, index, nro),
               _botonEnviar(nro, length, index, seccion.questions.length),
             ],
           );
         });
   }
 
-  Widget cardPregunta(BuildContext context, Question pregunta) {
+  Widget cardPregunta(
+      BuildContext context, Question pregunta, int index, int nrosec) {
     return Center(
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
-          children: listaOption(context, pregunta),
+          children: listaOption(context, pregunta, index, nrosec),
         ),
       ),
     );
   }
 
-  List<Widget> listaOption(BuildContext context, Question question) {
+  List<Widget> listaOption(
+      BuildContext context, Question question, int index, int nrosec) {
     List<Widget> lista = [
       Row(),
       const SizedBox(height: 30),
       Text('¿ ${question.name} ?'),
       const SizedBox(height: 30),
     ];
-
-    PreguntaM resp = PreguntaM(question.id, question.multiple);
-    listState.encuesta.add(resp);
+    //hasta aqui
     final listaOptions = question.optionRespuesta;
     final multiple = question.multiple;
-    if (!multiple) {
-      RespuestaM respuesta = RespuestaM();
-      respuesta.idOpcionRespuesta = '';
-      resp.respuestas.add(respuesta);
-    }
-    for (var option in listaOptions) {
-      if (multiple) {
-        RespuestaM respuesta = RespuestaM();
-        respuesta.idOpcionRespuesta = option.id;
-        resp.respuestas.add(respuesta);
-      }
-      lista.add(optionRespuesta(option, multiple, resp.respuestas.last));
+
+    for (var i = 0; i < listaOptions.length; i++) {
+      lista.add(optionRespuesta(
+          listaOptions[i], multiple, question, index, i, nrosec));
       lista.add(const SizedBox(height: 20));
     }
 
@@ -117,15 +132,15 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
     return lista;
   }
 
-  Widget optionRespuesta(
-      OptionRespuesta opcion, bool multiple, RespuestaM respuesta) {
+  Widget optionRespuesta(OptionRespuesta opcion, bool multiple,
+      Question question, int index, int i, int nrosec) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const SizedBox(
           width: 20,
         ),
-        opcionSeleccion(opcion, multiple, respuesta),
+        opcionSeleccion(opcion, multiple, question, index, i, nrosec),
         const SizedBox(
           width: 60,
         ),
@@ -134,24 +149,34 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
     );
   }
 
-  Widget opcionSeleccion(
-      OptionRespuesta opcion, bool multiple, RespuestaM respuesta) {
+  Widget opcionSeleccion(OptionRespuesta opcion, bool multiple,
+      Question respuesta, int index, int i, int nrosec) {
     if (multiple) {
       return Checkbox(
-        value: respuesta.estado,
+        value: listaState
+            .secciones![nrosec].preguntas?[index].respuestas?[i].state,
         onChanged: (valor) {
           setState(() {
-            respuesta.estado = valor;
+            listaState.secciones?[nrosec].preguntas?[index].respuestas?[i]
+                .state = valor;
+            listaState.secciones?[nrosec].preguntas?[index].respuestas?[i]
+                .idOpcionRespuesta = opcion.id;
           });
         },
       );
     } else {
+      int? val =
+          listaState.secciones![nrosec].preguntas![index].respuestas![0].select;
       return Radio(
-          value: opcion.id,
-          groupValue: respuesta.idOpcionRespuesta,
-          onChanged: (String? valor) {
+          value: i + 1,
+          groupValue: val,
+          onChanged: (int? valor) {
             setState(() {
-              respuesta.idOpcionRespuesta = valor;
+              val = valor;
+              listaState.secciones![nrosec].preguntas![index].respuestas![0]
+                  .select = val;
+              listaState.secciones![nrosec].preguntas![index].respuestas![0]
+                  .idOpcionRespuesta = opcion.id;
             });
           });
     }

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:encuestas/src/models/almacenar_preguntas_model.dart';
 import 'package:encuestas/src/provider/db_provider.dart';
 import 'package:encuestas/src/models/encuesta_model.dart';
+import 'package:encuestas/src/models/aplicacion_encuesta_model.dart';
 import 'package:http/http.dart' as http;
 
 Future<Seccions> getEncuesta(id) async {
@@ -24,6 +26,20 @@ Future<Seccions> getEncuestaLocal(id) async {
   // print(jsonEncode(sectionss));
   var sections = seccionsFromJson(jsonEncode(sectionss));
   return sections;
+}
+
+guardarEncuestaAplicada(SeccionsM seccions) {
+  AplicacionEncuesta aplicada = AplicacionEncuesta(seccions.id);
+  for (var i = 0; i < seccions.secciones!.length; i++) {
+    var prs = seccions.secciones![i].preguntas;
+
+    for (var j = 0; j < prs!.length; j++) {
+      QuestionA pregunta = QuestionA(prs[j].id);
+      var pr = prs[j].respuestas;
+
+      for (var k = 0; k < pr!.length; k++) {}
+    }
+  }
 }
 
 descargarEncuesta(String? id) async {
@@ -55,6 +71,7 @@ actualizarEncuesta(String? id) async {
 
   // print(json);
   state.then((value) async => {
-        if (value) {await DBProvider.db.updateEncuestasLocal(id, json.toString())}
+        if (value)
+          {await DBProvider.db.updateEncuestasLocal(id, json.toString())}
       });
 }
