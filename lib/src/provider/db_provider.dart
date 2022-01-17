@@ -34,6 +34,10 @@ class DBProvider {
           ' id TEXT PRIMARY KEY,'
           ' encuesta TEXT'
           ')');
+      await db.execute('CREATE TABLE Aplicacions ('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          'aplicacion TEXT'
+          ')');
     });
   }
 
@@ -44,6 +48,28 @@ class DBProvider {
     final res = await db?.rawInsert("INSERT Into Encuestas (id, encuesta) "
         "VALUES ( '$id', '$encuesta')");
     // if(res == 1){ print('___Insercion correcta___'+res.toString());}
+    return res;
+  }
+
+  //guardar encuesta aplicada
+  nuevaAplicacionEncuesta(String aplicacionE) async {
+    final db = await database;
+    final res = await db?.rawInsert("INSERT Into Aplicacions (aplicacion) "
+        "VALUES ('$aplicacionE')");
+    return res;
+  }
+
+   getAplicacionEncuesta() async {
+    final db = await database;
+    final res = db?.query('Aplicacions');
+    return res;
+  }
+
+  deleteAplicacionEncuesta(int id) async {
+    final db = await database;
+    final res =
+        await db?.delete('Aplicacions', where: 'id= ?', whereArgs: [id]);
+
     return res;
   }
 

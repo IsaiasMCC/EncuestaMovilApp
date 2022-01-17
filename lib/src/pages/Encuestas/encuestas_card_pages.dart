@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:encuestas/src/provider/db_provider.dart';
 import 'package:encuestas/src/provider/encuesta_provider.dart';
 import 'package:encuestas/src/provider/encuestas_provider.dart';
 import 'package:encuestas/src/models/encuestas_model.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class EncuestaPage extends StatefulWidget {
   @override
@@ -18,6 +21,14 @@ class _EncuestaPageState extends State<EncuestaPage> {
         title: Text('Encuestas'),
         backgroundColor: color_fuente,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.send_to_mobile),
+            tooltip: 'Enviando Aplicaciones',
+            onPressed: () {
+              print('enviando');
+              enviarAplicacion();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Actualizar encuestas',
@@ -109,5 +120,18 @@ class _EncuestaPageState extends State<EncuestaPage> {
         ),
       ),
     );
+  }
+
+  enviarAplicacion() {
+    enviarAplicacionEncuesta().then((res) {
+      print(res);
+    });
+  }
+
+  Future cliclo() async {
+    Future timeout = Future.delayed(const Duration(seconds: 5));
+    return timeout.timeout(const Duration(seconds: 10), onTimeout: () {
+      print('hola');
+    });
   }
 }

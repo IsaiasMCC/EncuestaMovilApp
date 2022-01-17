@@ -5,15 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CallApi {
   final String _url = 'encuestas-server-rest-api.herokuapp.com/api/v1/';
+  final url = Uri.parse('https://encuestas-server-rest-api.herokuapp.com');
 
   postData(data, apiUrl) async {
-    var fullUrl = _url + apiUrl;
-    print(data);
-    return await http.post(
-      Uri(path: fullUrl),
-      body: jsonEncode(data),
-      headers: _setHeaders(),
-    );
+    // var fullUrl = _url + apiUrl + await _getToken();
+    return await http.post(url,
+        body: jsonEncode(data), headers: _setHeaders());
   }
 
   getData(apiUrl) async {

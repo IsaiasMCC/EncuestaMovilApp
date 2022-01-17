@@ -14,6 +14,7 @@ class EncuestaAplicar extends StatefulWidget {
 
 class _EncuestaAplicarState extends State<EncuestaAplicar> {
   String? id = '';
+  int cont = 1;
   SeccionsM listaState = SeccionsM();
   var color_fuente = new Color.fromRGBO(52, 73, 94, 1);
 
@@ -21,6 +22,7 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
   Widget build(BuildContext context) {
     final encuesta = ModalRoute.of(context)?.settings.arguments as Encuesta;
     listaState.id = encuesta.id;
+
     return new WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -49,28 +51,31 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
   }
 
   Widget encuestaAplicar(Seccions seccions) {
-    for (var i = 0; i < seccions.sections.length; i++) {
-      PreguntasM pregs = PreguntasM();
-      listaState.secciones!.add(pregs);
-      var prs = seccions.sections[i].questions;
+    if (cont == 1) {
+      for (var i = 0; i < seccions.sections.length; i++) {
+        PreguntasM pregs = PreguntasM();
+        listaState.secciones!.add(pregs);
+        var prs = seccions.sections[i].questions;
 
-      for (var j = 0; j < prs.length; j++) {
-        PreguntaM preg = PreguntaM('');
-        pregs.preguntas!.add(preg);
-        var pr = prs[j].optionRespuesta;
+        for (var j = 0; j < prs.length; j++) {
+          PreguntaM preg = PreguntaM('');
+          pregs.preguntas!.add(preg);
+          var pr = prs[j].optionRespuesta;
 
-        if (!prs[j].multiple) {
-          var resp = RespuestaM();
-          preg.respuestas!.add(resp);
-        }
-        for (var k = 0; k < pr.length; k++) {
-          if (prs[j].multiple) {
+          if (!prs[j].multiple) {
             var resp = RespuestaM();
             preg.respuestas!.add(resp);
-            resp.idOpcionRespuesta = '';
+          }
+          for (var k = 0; k < pr.length; k++) {
+            if (prs[j].multiple) {
+              var resp = RespuestaM();
+              preg.respuestas!.add(resp);
+              resp.idOpcionRespuesta = '';
+            }
           }
         }
       }
+      cont++;
     }
     return PageView.builder(
         itemCount: seccions.sections.length,
@@ -88,6 +93,7 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
         itemCount: seccion.questions.length,
         itemBuilder: (context, index) {
           final pregunta = seccion.questions[index];
+          listaState.secciones![nro].preguntas![index].id = pregunta.id;
           return Column(
             children: [
               _nombreSeccion(nro, length, index),
@@ -225,6 +231,20 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
     }
   }
 
+  void restartStates() {
+    listaState.secciones!.forEach((sec) {
+      sec.preguntas!.forEach((pr) {
+        pr.respuestas!.forEach((op) {
+          setState(() {
+            op.state = false;
+            op.select = -1;
+            op.idOpcionRespuesta = '';
+          });
+        });
+      });
+    });
+  }
+
   Widget _botonEnviar(
       int index, int length, int questions, int lengthPregunta) {
     if (questions + 1 == lengthPregunta && (index + 1 == length)) {
@@ -237,7 +257,12 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
               backgroundColor: Colors.blue,
               color: Colors.white,
             )),
-        onPressed: () {},
+        onPressed: () {
+          guardarEncuestaAplicada(listaState);
+          print(listaState.toString());
+          restartStates();
+          cont = 0;
+        },
       );
     } else
       return Text('');

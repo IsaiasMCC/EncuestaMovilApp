@@ -1,3 +1,7 @@
+
+import 'dart:convert';
+
+
 class AplicacionEncuesta {
   String? idEncuesta;
   List<QuestionA>? answers;
@@ -7,10 +11,11 @@ class AplicacionEncuesta {
   }
 }
 
+
 class QuestionA {
   String? idQuestion;
   List<OptionRespuestaA>? optionRespuestas;
-  QuestionA(String id) {
+  QuestionA(String? id) {
     idQuestion = id;
     optionRespuestas = [];
   }
@@ -18,7 +23,7 @@ class QuestionA {
 
 class OptionRespuestaA {
   String? idORespuesta;
-  OptionRespuestaA(String id) {
+  OptionRespuestaA(String? id) {
     idORespuesta = id;
   }
 }
