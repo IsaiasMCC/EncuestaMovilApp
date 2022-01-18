@@ -267,4 +267,19 @@ class _EncuestaAplicarState extends State<EncuestaAplicar> {
     } else
       return Text('');
   }
+
+void showToast(BuildContext context, String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        mensaje,
+        style: TextStyle(
+           fontSize: 35,  
+           color: Colors.red, 
+           fontStyle: FontStyle.italic,  
+        ) ,
+        ),
+      duration: Duration(seconds: 3),
+    ));
+  }
+
 }

@@ -24,10 +24,25 @@ class _EncuestaPageState extends State<EncuestaPage> {
           IconButton(
             icon: const Icon(Icons.send_to_mobile),
             tooltip: 'Enviando Aplicaciones',
-            onPressed: () {
-              print('enviando');
-              enviarAplicacion();
-            },
+            onPressed: () async{
+              //print('enviando');
+                  bool result = await InternetConnectionChecker().hasConnection;
+                  if(result) {
+                  var value =  enviarAplicacion(); 
+                          
+                          showToast(context, 'Enviando Encuesta $value');
+                          
+                          print(value);                           
+                        
+                  // enviarAplicacion();
+                  // showToast(context, 'Enviando Encuestas');
+                }
+                else{
+                   showToast(context, 'Sin Conexion');
+                }
+
+
+            }
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -101,7 +116,18 @@ class _EncuestaPageState extends State<EncuestaPage> {
                   ),
                   tooltip: 'Encuesta Descargada',
                   onPressed: () {
-                    descargarEncuesta(encuesta.id);
+                    
+                    descargarEncuesta(encuesta.id).then((value)=>{
+                      if(value){
+                        showToast(context, 'Descargando Encuesta')
+                        
+                      }
+                      else{
+                        showToast(context, 'Sin Conexion')
+                      },
+                      print(value)
+
+                    });
                   },
                 ),
                 IconButton(
@@ -111,7 +137,20 @@ class _EncuestaPageState extends State<EncuestaPage> {
                   ),
                   tooltip: 'Encuesta Actualizada',
                   onPressed: () {
-                    actualizarEncuesta(encuesta.id);
+
+                    actualizarEncuesta(encuesta.id).then((value)=>{
+                      if(value){
+                        showToast(context, 'Actualizando Encuesta')
+                        
+                      }
+                      else{
+                        showToast(context, 'Sin Conexion')
+                      },
+                      print(value)
+
+                    });
+
+                    
                   },
                 ),
               ],
@@ -122,10 +161,21 @@ class _EncuestaPageState extends State<EncuestaPage> {
     );
   }
 
-  enviarAplicacion() {
-    enviarAplicacionEncuesta().then((res) {
-      print(res);
-    });
+  enviarAplicacion(){
+    var aux=0;
+    enviarAplicacionEncuesta().then(
+      (res) => {
+      print('hola $res'),
+      
+      aux= res
+       
+
+    }
+      
+    );
+
+    return aux;
+
   }
 
   Future cliclo() async {
@@ -134,4 +184,22 @@ class _EncuestaPageState extends State<EncuestaPage> {
       print('hola');
     });
   }
+
+  void showToast(BuildContext context, String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: 
+      Text(mensaje,
+      style: TextStyle(
+           fontSize: 20,  
+           color: Colors.red, 
+           
+
+           //fontStyle: FontStyle.italic 
+        ) ,
+      ),
+      duration: Duration(seconds: 3),
+    ));
+  }
+
+
 }

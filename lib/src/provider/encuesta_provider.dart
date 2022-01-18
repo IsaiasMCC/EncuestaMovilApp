@@ -15,10 +15,12 @@ Future<Seccions> getEncuesta(id) async {
   var cuerpo = res.body;
   var objeto = jsonDecode(cuerpo);
   var sectionss = {"sections": objeto['encuesta']['sections']};
-  // print(jsonEncode(sectionss));
+    //print( 'hola____________'+jsonEncode(sectionss));
   var sections = seccionsFromJson(jsonEncode(sectionss));
   // var success = (objeto['success']);
   return sections;
+
+  
 }
 
 Future<Seccions> getEncuestaLocal(id) async {
@@ -27,6 +29,7 @@ Future<Seccions> getEncuestaLocal(id) async {
   // print(objeto1['sections']);
   var sectionss = {"sections": objeto1['sections']};
   // print(jsonEncode(sectionss));
+  
   var sections = seccionsFromJson(jsonEncode(sectionss));
   return sections;
 }
@@ -73,7 +76,7 @@ guardarEncuestaAplicada(SeccionsM seccions) {
   state.then((res) => {print(res)});
 }
 
-enviarAplicacionEncuesta() async {
+Future<int> enviarAplicacionEncuesta() async {
   var select = DBProvider.db.getAplicacionEncuesta();
   Uri url;
   var json;
@@ -81,11 +84,13 @@ enviarAplicacionEncuesta() async {
   var ht;
   int s;
   String ms;
-  bool result = await InternetConnectionChecker().hasConnection;
-  if (result) {
+  var  aux= 0;
+  
     // print('Hay connection');
     select.then((respuestas) async => {
           print(respuestas.length),
+         aux = respuestas.length,
+         print('encuesta Enviada   $aux'),
           for (var apli in respuestas)
             {
               json = jsonDecode(apli['aplicacion']),
@@ -109,11 +114,9 @@ enviarAplicacionEncuesta() async {
               
             }
     });
-    return true;
-  } else {
-    // print('No internet');
-    return false;
-  }
+   //      print('aux2   $aux');
+    return aux;
+  
 }
 
 verifConnection() async {
@@ -127,8 +130,10 @@ verifConnection() async {
   }
 }
 
-descargarEncuesta(String? id) async {
-  var state = DBProvider.db.getEncuestasStateId(id);
+Future<bool> descargarEncuesta(String? id) async {
+  bool result = await InternetConnectionChecker().hasConnection;
+  if(result){
+    var state = DBProvider.db.getEncuestasStateId(id);
   Uri url = Uri.parse(
       'https://encuestas-server-rest-api.herokuapp.com/api/v1/encuestas/$id');
   final res = await http.get(url);
@@ -140,9 +145,14 @@ descargarEncuesta(String? id) async {
   state.then((value) => {
         if (!value) {DBProvider.db.nuevaEncuestaRaw(id, json.toString())}
       });
+  
+  }    
+  return result;
 }
 
-actualizarEncuesta(String? id) async {
+Future<bool> actualizarEncuesta(String? id) async {
+  bool result = await InternetConnectionChecker().hasConnection;
+  if(result){
   var state = DBProvider.db.getEncuestasStateId(id);
   Uri url = Uri.parse(
       'https://encuestas-server-rest-api.herokuapp.com/api/v1/encuestas/$id');
@@ -159,4 +169,7 @@ actualizarEncuesta(String? id) async {
         if (value)
           {await DBProvider.db.updateEncuestasLocal(id, json.toString())}
       });
+
+  }     
+  return  result;
 }

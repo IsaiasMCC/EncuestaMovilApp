@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 import 'package:encuestas/src/models/encuestaModelSQ.dart';
 export 'package:encuestas/src/models/encuestaModelSQ.dart';
 
+
 class DBProvider {
   static Database? _database; //propiedad privada
 
@@ -38,8 +39,70 @@ class DBProvider {
           'id INTEGER PRIMARY KEY AUTOINCREMENT,'
           'aplicacion TEXT'
           ')');
+      await db.execute('CREATE TABLE Poll ('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+          'encuesta TEXT'
+          ')');
     });
   }
+// guardar cabecera de encuestas
+  nuevoPoll(String? encuesta) async {
+    final db = await database;
+    final res = await db?.rawInsert("INSERT Into Poll (encuesta) "
+        "VALUES ('$encuesta')");
+    return res;
+  }
+getPollId(String id) async {
+    final db = await database;
+     //await db?.query('Poll',orderBy:"id DESC");
+    final res = await db?.query('Poll',
+        where: 'id = ?', whereArgs: [id]); //devuelve un mapa
+
+
+    return res!.isNotEmpty ? res.first : null;
+  }
+   getTodoPoll() async {
+    final db = await database;
+    
+    final res = db?.query('Poll');
+    return res!;
+    
+  }
+
+
+  deletePoll(int id) async {
+    final db = await database;
+    final res =
+        await db?.delete('Poll', where: 'id= ?', whereArgs: [id]);
+
+    return res;
+  }
+  updatePoll(String? id, String encuesta) async {
+    final db = await database;
+    final res = db?.rawQuery(
+        "UPDATE Poll set encuesta = ? WHERE id = ?", [encuesta, id]);
+
+    return res; // devuelve la cantidad de atualizaciones que se hizo
+  }
+  getMaxIDPoll() async{
+    final db = await database;
+    // final res = db?.rawQuery(
+    //   "SELECT * FROM Poll WHERE id = ( SELECT MAX ( id ) FROM Poll )"
+    // );
+    final res = db?.rawQuery(
+      "SELECT count(*) FROM Poll"
+    );
+    
+    
+    //var res = await db?.query('Poll',orderBy:"id DESC");
+    //var res = await db?.query('Poll',orderBy:"id DESC");
+    
+    //SELECT count(*) FROM libros
+    return res;
+  }
+
+
+
 
   // crear registros
   nuevaEncuestaRaw(String? id, String encuesta) async {

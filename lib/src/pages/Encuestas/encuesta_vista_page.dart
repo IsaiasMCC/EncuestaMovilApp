@@ -14,6 +14,8 @@ class _EncuestaVistaState extends State<EncuestaVista> {
   TextStyle style_pregunta = const TextStyle(
       fontSize: 15, letterSpacing: 1, fontWeight: FontWeight.normal);
   var color_fuente = new Color.fromRGBO(52, 73, 94, 1);
+  bool _check=false;
+  int? _groupvalue;
   @override
   Widget build(BuildContext context) {
     final encuesta = ModalRoute.of(context)?.settings.arguments as Encuesta;
@@ -84,8 +86,9 @@ class _EncuestaVistaState extends State<EncuestaVista> {
       SizedBox(height: 30),
     ];
     final listaOptions = question.optionRespuesta;
+    final multiple = question.multiple;
     for (var option in listaOptions) {
-      lista.add(optionRespuesta(option));
+      lista.add(optionRespuesta(option,multiple));
       lista.add(const SizedBox(height: 20));
     }
 
@@ -93,12 +96,54 @@ class _EncuestaVistaState extends State<EncuestaVista> {
     return lista;
   }
 
-  Widget optionRespuesta(OptionRespuesta opcion) {
-    Widget option = Center(
-      child: Text(
-        '*  ${opcion.value}',
+  Widget optionRespuesta(OptionRespuesta opcion,bool multiple) {
+    // Widget option = Center(
+    //   child: Text(
+    //     '*  ${opcion.value}',
+    //   ),
+    // );
+    // return option;
+return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const SizedBox(
+          width: 20,
+        ),
+        //opcionSeleccion(opcion, multiple, question, index, i, nrosec),
+        (multiple == true ) ? 
+        Container(
+         child: 
+         Checkbox(
+        value:_check,
+        onChanged : (bool? valor) {
+          setState(() {
+         
+          });
+        },
+        activeColor : Colors.green,
+        checkColor:Colors.red,       
+
       ),
+         
+         
+       ) : Container(
+         child: Radio(
+          value: opcion.id,
+          groupValue: _groupvalue,
+          onChanged: ( val) {
+            //setState(() {
+              //dynamic x=val;
+               // _groupvalue= x;
+           // });
+          })
+       ),
+        //_________________________
+        const SizedBox(
+          width: 60,
+        ),
+        Text('${opcion.value}')
+      ],
     );
-    return option;
+
   }
 }
